@@ -1,0 +1,1664 @@
+ <!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dreamwood Launcher</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+      <link rel="icon" href="chrome://https://github.com/KneDe4/knede4.github.io/raw/refs/heads/main/logo.jpg" type="image/x-icon">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a1520 0%, #1a2a3a 100%);
+            color: #e0e0e0;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        .launcher-container {
+            width: 95vw;
+            height: 95vh;
+            max-width: 95vh;
+            background: rgba(15, 25, 35, 0.98);
+            border-radius: 0 0 12px 12px;
+            overflow: hidden;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.9);
+            border: 1px solid rgba(64, 100, 140, 0.6);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Windows-подобная строка заголовка */
+        .title-bar {
+            height: 32px;
+            background: linear-gradient(90deg, #1a2a3a 0%, #2c4c6c 100%);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 8px;
+            border-bottom: 1px solid rgba(64, 100, 140, 0.5);
+            -webkit-app-region: drag;
+            cursor: move;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .title-bar::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: rgba(79, 195, 247, 0.3);
+        }
+
+        .title-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-left: 5px;
+        }
+
+        .window-icon {
+            color: #64b5f6;
+            font-size: 14px;
+        }
+
+        .window-title {
+            font-size: 13px;
+            color: #bbdefb;
+            font-weight: 500;
+        }
+
+        .title-right {
+            display: flex;
+            align-items: center;
+            gap: 1px;
+            -webkit-app-region: no-drag;
+        }
+
+        .window-btn {
+            width: 46px;
+            height: 32px;
+            background: transparent;
+            border: none;
+            color: #bbdefb;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .window-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .window-btn.close:hover {
+            background: #e81123;
+            color: white;
+        }
+
+        .window-btn.minimize:hover::after,
+        .window-btn.maximize:hover::after {
+            content: '';
+            position: absolute;
+            width: 10px;
+            height: 1px;
+            background: currentColor;
+        }
+
+        .window-btn.minimize:hover::after {
+            width: 8px;
+        }
+
+        .window-btn.maximize:hover::after {
+            width: 8px;
+            height: 8px;
+            border: 1px solid currentColor;
+            background: transparent;
+        }
+
+        .header {
+            background: linear-gradient(90deg, #1c3a5c 0%, #2c4c6c 100%);
+            padding: 15px 25px 12px;
+            border-bottom: 1px solid rgba(64, 100, 140, 0.3);
+            flex-shrink: 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .logo-icon {
+            font-size: 26px;
+            color: #64b5f6;
+        }
+
+        .logo-text h1 {
+            font-size: 22px;
+            color: #bbdefb;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+        }
+
+        .logo-text .subtitle {
+            font-size: 13px;
+            color: #90caf9;
+            font-weight: 300;
+        }
+
+        .server-info {
+            font-size: 12px;
+            margin-top: 5px;
+            color: #e3f2fd;
+            opacity: 0.9;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .server-info span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 180px;
+            background: rgba(10, 20, 30, 0.95);
+            padding: 15px 10px;
+            border-right: 1px solid rgba(80, 120, 160, 0.2);
+            flex-shrink: 0;
+            overflow-y: auto;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 10px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #b0bec5;
+            font-size: 14px;
+            border: none;
+            background: transparent;
+            width: 100%;
+            text-align: left;
+        }
+
+        .nav-item:hover {
+            background: rgba(64, 100, 140, 0.3);
+            color: #e0f7fa;
+        }
+
+        .nav-item.active {
+            background: rgba(41, 98, 155, 0.5);
+            color: #80deea;
+            border-left: 3px solid #4fc3f7;
+        }
+
+        .nav-icon {
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .tab-content {
+            display: none;
+            height: 100%;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .section-title {
+            font-size: 20px;
+            color: #81d4fa;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(100, 181, 246, 0.3);
+        }
+
+        .news-item {
+            background: rgba(30, 40, 55, 0.7);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            border-left: 3px solid #4fc3f7;
+        }
+
+        .news-date {
+            font-size: 11px;
+            color: #90a4ae;
+            margin-bottom: 4px;
+        }
+
+        .news-title {
+            font-size: 15px;
+            color: #e1f5fe;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .news-text {
+            font-size: 13px;
+            color: #b0bec5;
+            line-height: 1.4;
+        }
+
+        .player-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .stat-card {
+            background: rgba(30, 40, 55, 0.7);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 22px;
+            color: #4fc3f7;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: #90a4ae;
+        }
+
+        .settings-option {
+            margin-bottom: 15px;
+        }
+
+        .settings-label {
+            display: block;
+            margin-bottom: 6px;
+            color: #bbdefb;
+            font-size: 14px;
+        }
+
+        .settings-input, .settings-select {
+            width: 100%;
+            padding: 10px;
+            background: rgba(40, 50, 65, 0.8);
+            border: 1px solid rgba(100, 181, 246, 0.3);
+            border-radius: 6px;
+            color: #e0e0e0;
+            font-size: 13px;
+        }
+
+        .settings-input:focus, .settings-select:focus {
+            outline: none;
+            border-color: #4fc3f7;
+        }
+
+        .button-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .launch-button {
+            background: linear-gradient(90deg, #2c7bb6 0%, #4fc3f7 100%);
+            color: white;
+            border: none;
+            padding: 15px 35px;
+            font-size: 16px;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 12px rgba(44, 123, 182, 0.4);
+        }
+
+        .launch-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(44, 123, 182, 0.6);
+            background: linear-gradient(90deg, #2c7bb6 0%, #5bc8ff 100%);
+        }
+
+        .launch-button:active {
+            transform: translateY(0);
+        }
+
+        .progress-container {
+            margin-top: 15px;
+            background: rgba(40, 50, 65, 0.8);
+            border-radius: 8px;
+            padding: 12px;
+            display: none;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: rgba(100, 181, 246, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #2c7bb6 0%, #4fc3f7 100%);
+            width: 0%;
+            transition: width 0.5s;
+        }
+
+        .progress-text {
+            font-size: 13px;
+            color: #bbdefb;
+            text-align: center;
+        }
+
+        /* Стили для модов */
+        .mods-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .mod-card {
+            background: rgba(30, 40, 55, 0.8);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid rgba(100, 181, 246, 0.2);
+            transition: all 0.2s;
+        }
+
+        .mod-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+            border-color: #4fc3f7;
+        }
+
+        .mod-header {
+            padding: 12px;
+            background: rgba(41, 98, 155, 0.3);
+            border-bottom: 1px solid rgba(100, 181, 246, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .mod-name {
+            font-size: 16px;
+            color: #81d4fa;
+            font-weight: 600;
+            flex: 1;
+        }
+
+        .mod-version {
+            background: rgba(79, 195, 247, 0.2);
+            color: #4fc3f7;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+
+        .mod-body {
+            padding: 12px;
+        }
+
+        .mod-description {
+            color: #b0bec5;
+            font-size: 13px;
+            line-height: 1.4;
+            margin-bottom: 12px;
+            min-height: 50px;
+        }
+
+        .mod-details {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #90a4ae;
+            margin-bottom: 12px;
+        }
+
+        .mod-author {
+            color: #64b5f6;
+        }
+
+        .mod-size {
+            color: #a5d6a7;
+        }
+
+        .mod-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .mod-btn {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 13px;
+        }
+
+        .install-btn {
+            background: linear-gradient(90deg, #2c7bb6 0%, #4fc3f7 100%);
+            color: white;
+        }
+
+        .install-btn:hover {
+            background: linear-gradient(90deg, #2c7bb6 0%, #5bc8ff 100%);
+        }
+
+        .details-btn {
+            background: rgba(100, 181, 246, 0.2);
+            color: #bbdefb;
+            border: 1px solid rgba(100, 181, 246, 0.5);
+        }
+
+        .details-btn:hover {
+            background: rgba(100, 181, 246, 0.3);
+        }
+
+        .mod-status {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            margin-top: 8px;
+            text-align: center;
+            display: none;
+        }
+
+        .status-installed {
+            background: rgba(76, 175, 80, 0.2);
+            color: #81c784;
+            border: 1px solid rgba(76, 175, 80, 0.3);
+        }
+
+        .status-downloading {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffd54f;
+            border: 1px solid rgba(255, 193, 7, 0.3);
+        }
+
+        .mod-filter {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 6px 12px;
+            background: rgba(40, 50, 65, 0.8);
+            border: 1px solid rgba(100, 181, 246, 0.3);
+            border-radius: 16px;
+            color: #bbdefb;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 13px;
+            border: none;
+        }
+
+        .filter-btn:hover {
+            background: rgba(64, 100, 140, 0.3);
+        }
+
+        .filter-btn.active {
+            background: rgba(41, 98, 155, 0.5);
+            border-color: #4fc3f7;
+            color: #80deea;
+        }
+
+        .mod-category {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            font-size: 10px;
+            padding: 1px 6px;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .category-performance {
+            color: #4caf50;
+            border: 1px solid #4caf50;
+        }
+
+        .category-visual {
+            color: #ff9800;
+            border: 1px solid #ff9800;
+        }
+
+        .category-utility {
+            color: #2196f3;
+            border: 1px solid #2196f3;
+        }
+
+        .category-gameplay {
+            color: #9c27b0;
+            border: 1px solid #9c27b0;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 10px 12px;
+            background: rgba(40, 50, 65, 0.8);
+            border: 1px solid rgba(100, 181, 246, 0.3);
+            border-radius: 6px;
+            color: #e0e0e0;
+            font-size: 13px;
+            margin-bottom: 15px;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #4fc3f7;
+        }
+
+        .installed-mods-count {
+            background: rgba(76, 175, 80, 0.2);
+            color: #81c784;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-left: 6px;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 12px;
+            background: rgba(10, 20, 30, 0.95);
+            border-top: 1px solid rgba(80, 120, 160, 0.2);
+            color: #90a4ae;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+
+        .server-ip {
+            background: rgba(30, 40, 55, 0.7);
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin: 10px 0;
+            font-family: monospace;
+            color: #4fc3f7;
+            border: 1px dashed rgba(79, 195, 247, 0.5);
+            display: inline-block;
+        }
+
+        /* Модальное окно */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: rgba(15, 25, 35, 0.95);
+            width: 80%;
+            max-width: 500px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid #4fc3f7;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 15px;
+            background: linear-gradient(90deg, #1c3a5c 0%, #2c4c6c 100%);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            color: #bbdefb;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: #bbdefb;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            padding: 15px;
+        }
+
+        .mod-dependencies {
+            margin: 12px 0;
+            padding: 8px;
+            background: rgba(30, 40, 55, 0.7);
+            border-radius: 6px;
+        }
+
+        .dependency-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(100, 181, 246, 0.2);
+            font-size: 13px;
+        }
+
+        .dependency-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Полноэкранная кнопка */
+        .fullscreen-toggle {
+            position: absolute;
+            top: 40px;
+            right: 15px;
+            background: rgba(64, 100, 140, 0.3);
+            border: 1px solid rgba(100, 181, 246, 0.3);
+            color: #bbdefb;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            z-index: 100;
+        }
+
+        .fullscreen-toggle:hover {
+            background: rgba(64, 100, 140, 0.5);
+            border-color: #4fc3f7;
+        }
+
+        /* Кастомный скроллбар */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(20, 30, 40, 0.5);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(64, 100, 140, 0.5);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(79, 195, 247, 0.5);
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .launcher-container {
+                width: 100vw;
+                height: 100vh;
+                max-width: 100vw;
+                border-radius: 0;
+                border: none;
+            }
+
+            .title-bar {
+                height: 36px;
+            }
+
+            .window-btn {
+                width: 50px;
+                height: 36px;
+            }
+
+            .sidebar {
+                width: 160px;
+            }
+
+            .mods-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-height: 700px) {
+            .header {
+                padding: 10px 15px 8px;
+            }
+
+            .logo-text h1 {
+                font-size: 20px;
+            }
+
+            .sidebar {
+                padding: 10px 8px;
+            }
+
+            .nav-item {
+                padding: 8px 6px;
+                font-size: 13px;
+            }
+
+            .main-content {
+                padding: 15px;
+            }
+
+            .section-title {
+                font-size: 18px;
+                margin-bottom: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .sidebar {
+                width: 140px;
+            }
+
+            .player-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .server-info {
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .title-left .window-title {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="launcher-container">
+        <!-- Windows-подобная строка заголовка -->
+        <div class="title-bar" id="title-bar">
+            <div class="title-left">
+                <div class="window-icon">
+                    <i class="fas fa-tree"></i>
+                </div>
+                <div class="window-title">Dreamwood Launcher</div>
+            </div>
+            <div class="title-right">
+                <button class="window-btn minimize" id="minimize-btn" title="Свернуть">
+                    <i class="fas fa-minus"></i>
+                </button>
+                <button class="window-btn maximize" id="maximize-btn" title="Развернуть">
+                    <i class="fas fa-square"></i>
+                </button>
+                <button class="window-btn close" id="close-btn" title="Закрыть">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+
+        <button class="fullscreen-toggle" id="fullscreen-toggle" title="Полноэкранный режим">
+            <i class="fas fa-expand"></i>
+        </button>
+
+        <div class="header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-tree"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>Dreamwood Launcher</h1>
+                    <div class="subtitle">Официальный лаунчер сервера Dreamwood House</div>
+                </div>
+            </div>
+            <div class="server-info">
+                <span><i class="fas fa-server"></i> Версия: 1.20.1</span>
+                <span><i class="fas fa-users"></i> Онлайн: <span id="online-count">128</span></span>
+                <span><i class="fas fa-signal"></i> Пинг: 24ms</span>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="sidebar">
+                <button class="nav-item active" data-tab="news">
+                    <div class="nav-icon"><i class="fas fa-newspaper"></i></div>
+                    <div>Новости</div>
+                </button>
+                <button class="nav-item" data-tab="play">
+                    <div class="nav-icon"><i class="fas fa-play-circle"></i></div>
+                    <div>Играть</div>
+                </button>
+                <button class="nav-item" data-tab="mods">
+                    <div class="nav-icon"><i class="fas fa-puzzle-piece"></i></div>
+                    <div>Моды <span class="installed-mods-count" id="installed-mods-count">0</span></div>
+                </button>
+                <button class="nav-item" data-tab="stats">
+                    <div class="nav-icon"><i class="fas fa-chart-bar"></i></div>
+                    <div>Статистика</div>
+                </button>
+                <button class="nav-item" data-tab="settings">
+                    <div class="nav-icon"><i class="fas fa-cog"></i></div>
+                    <div>Настройки</div>
+                </button>
+                <button class="nav-item" data-tab="about">
+                    <div class="nav-icon"><i class="fas fa-info-circle"></i></div>
+                    <div>О сервере</div>
+                </button>
+            </div>
+
+            <div class="main-content">
+                <div id="news" class="tab-content active">
+                    <h2 class="section-title"><i class="fas fa-newspaper"></i> Последние новости</h2>
+                    <div class="news-item">
+                        <div class="news-date">15 марта 2024</div>
+                        <div class="news-title">Обновление "Dreamwood Forest"</div>
+                        <div class="news-text">Добавлен новый биом - Dreamwood Forest с уникальными деревьями и мобами. Также исправлены баги с генерацией мира.</div>
+                    </div>
+                    <div class="news-item">
+                        <div class="news-date">10 марта 2024</div>
+                        <div class="news-title">Новый ивент: Королевская охота</div>
+                        <div class="news-text">Присоединяйтесь к еженедельной королевской охте! Топ-3 игроков получат эксклюзивные награды.</div>
+                    </div>
+                    <div class="news-item">
+                        <div class="news-date">5 марта 2024</div>
+                        <div class="news-title">Открытие нового PvP-арены</div>
+                        <div class="news-text">Теперь вы можете сражаться с другими игроками на новой улучшенной арене с системой рейтинга.</div>
+                    </div>
+                </div>
+
+                <div id="play" class="tab-content">
+                    <h2 class="section-title"><i class="fas fa-play-circle"></i> Запуск игры</h2>
+                    <p>Для подключения к серверу Dreamwood House выполните следующие шаги:</p>
+                    <ol style="margin: 12px 0 12px 20px; color: #b0bec5; font-size: 14px;">
+                        <li>Убедитесь, что у вас установлен Minecraft Java Edition версии 1.20.1</li>
+                        <li>Нажмите кнопку "Запустить игру" ниже</li>
+                        <li>Добавьте сервер в список: <div class="server-ip">dreamwood.house</div></li>
+                        <li>Наслаждайтесь игрой на нашем сервере!</li>
+                    </ol>
+
+                    <div class="button-container">
+                        <button class="launch-button" id="launch-game">
+                            <i class="fas fa-rocket"></i> Запустить игру
+                        </button>
+                    </div>
+
+                    <div class="progress-container" id="progress-container">
+                        <div class="progress-text" id="progress-text">Подготовка к запуску...</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progress-fill"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="mods" class="tab-content">
+                    <h2 class="section-title"><i class="fas fa-puzzle-piece"></i> Моды для Dreamwood House</h2>
+
+                    <div class="mod-filter">
+                        <button class="filter-btn active" data-filter="all">Все</button>
+                        <button class="filter-btn" data-filter="performance">Оптимизация</button>
+                        <button class="filter-btn" data-filter="visual">Графика</button>
+                        <button class="filter-btn" data-filter="utility">Утилиты</button>
+                        <button class="filter-btn" data-filter="gameplay">Геймплей</button>
+                        <button class="filter-btn" data-filter="installed">Установленные</button>
+                    </div>
+
+                    <input type="text" class="search-box" id="mod-search" placeholder="Поиск модов...">
+
+                    <div class="mods-container" id="mods-container">
+                        <!-- Моды будут загружены через JavaScript -->
+                    </div>
+                </div>
+
+                <div id="stats" class="tab-content">
+                    <h2 class="section-title"><i class="fas fa-chart-bar"></i> Статистика сервера</h2>
+                    <div class="player-stats">
+                        <div class="stat-card">
+                            <div class="stat-value" id="total-players">5,842</div>
+                            <div class="stat-label">Всего игроков</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="online-now">128</div>
+                            <div class="stat-label">Онлайн сейчас</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">42</div>
+                            <div class="stat-label">Дней работы</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">17,526</div>
+                            <div class="stat-label">Построено чанков</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">892</div>
+                            <div class="stat-label">Активных кланов</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">24/7</div>
+                            <div class="stat-label">Аптайм</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="settings" class="tab-content">
+                    <h2 class="section-title"><i class="fas fa-cog"></i> Настройки лаунчера</h2>
+                    <div class="settings-option">
+                        <label class="settings-label">Путь к Minecraft</label>
+                        <input type="text" class="settings-input" id="game-path" value="C:\Program Files\Minecraft" readonly>
+                        <button class="nav-item" style="margin-top: 8px; padding: 8px; font-size: 13px;" onclick="changeGamePath()">Изменить путь</button>
+                    </div>
+                    <div class="settings-option">
+                        <label class="settings-label">Выделение памяти (RAM)</label>
+                        <select class="settings-select" id="ram-select">
+                            <option value="2">2 GB</option>
+                            <option value="4" selected>4 GB</option>
+                            <option value="6">6 GB</option>
+                            <option value="8">8 GB</option>
+                            <option value="12">12 GB</option>
+                        </select>
+                    </div>
+                    <div class="settings-option">
+                        <label class="settings-label" style="display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" id="auto-update" checked> Автоматическое обновление
+                        </label>
+                    </div>
+                    <div class="settings-option">
+                        <label class="settings-label" style="display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" id="close-on-launch"> Закрывать лаунчер после запуска
+                        </label>
+                    </div>
+                    <div class="settings-option">
+                        <label class="settings-label" style="display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" id="fullscreen-mode"> Запускать в полноэкранном режиме
+                        </label>
+                    </div>
+                </div>
+
+                <div id="about" class="tab-content">
+                    <h2 class="section-title"><i class="fas fa-info-circle"></i> О сервере Dreamwood House</h2>
+                    <p style="margin-bottom: 15px; font-size: 14px;">Dreamwood House - это уникальный Minecraft сервер с собственными модификациями и игровыми режимами.</p>
+
+                    <div style="margin: 15px 0; padding: 12px; background: rgba(30, 40, 55, 0.7); border-radius: 8px;">
+                        <h3 style="color: #81d4fa; margin-bottom: 8px; font-size: 16px;">Особенности сервера:</h3>
+                        <ul style="margin-left: 20px; color: #b0bec5; font-size: 14px;">
+                            <li>Уникальный биом Dreamwood Forest</li>
+                            <li>Кастомизированные мобы и предметы</li>
+                            <li>Система кланов и PvP-арены</li>
+                            <li>Еженедельные ивенты и награды</li>
+                            <li>Дружелюбное сообщество</li>
+                            <li>Активные администраторы</li>
+                        </ul>
+                    </div>
+
+                    <p style="font-size: 14px;">Присоединяйтесь к нашему сообществу и станьте частью мира Dreamwood House!</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Dreamwood Launcher v1.0 • Официальный лаунчер сервера Dreamwood House</p>
+            <p>При возникновении проблем обращайтесь в нашу <a href="#" style="color: #4fc3f7;">группу Discord</a></p>
+        </div>
+    </div>
+
+    <!-- Модальное окно для деталей мода -->
+    <div class="modal" id="mod-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" id="modal-mod-name">Название мода</div>
+                <button class="close-modal" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="modal-mod-details">
+                    <!-- Детали мода будут загружены через JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Данные модов
+        const modsData = [
+            {
+                id: 1,
+                name: "OptiFine",
+                version: "1.20.1",
+                description: "Оптимизация графики, поддержка шейдеров и HD текстур",
+                author: "sp614x",
+                size: "15.2 MB",
+                category: "performance",
+                downloads: 1250000,
+                dependencies: [],
+                required: true,
+                installed: false
+            },
+            {
+                id: 2,
+                name: "JourneyMap",
+                version: "5.9.7",
+                description: "Карта в реальном времени с маркерами и навигацией",
+                author: "techbrew",
+                size: "8.5 MB",
+                category: "utility",
+                downloads: 890000,
+                dependencies: [],
+                required: false,
+                installed: true
+            },
+            {
+                id: 3,
+                name: "JEI (Just Enough Items)",
+                version: "12.4.0",
+                description: "Просмотр рецептов и предметов прямо в игре",
+                author: "mezz",
+                size: "6.3 MB",
+                category: "utility",
+                downloads: 2100000,
+                dependencies: [],
+                required: false,
+                installed: false
+            },
+            {
+                id: 4,
+                name: "Biomes O' Plenty",
+                version: "17.2.1",
+                description: "Добавляет более 80 новых биомов в игру",
+                author: "Forstride",
+                size: "25.7 MB",
+                category: "gameplay",
+                downloads: 560000,
+                dependencies: [],
+                required: false,
+                installed: false
+            },
+            {
+                id: 5,
+                name: "Sodium",
+                version: "0.4.10",
+                description: "Мод для оптимизации производительности графики",
+                author: "CaffeineMC",
+                size: "3.8 MB",
+                category: "performance",
+                downloads: 1800000,
+                dependencies: [],
+                required: false,
+                installed: false
+            },
+            {
+                id: 6,
+                name: "Xaero's Minimap",
+                version: "23.6.0",
+                description: "Миникарта с настройкой отображения и маркеров",
+                author: "xaero96",
+                size: "4.2 MB",
+                category: "utility",
+                downloads: 1200000,
+                dependencies: [],
+                required: false,
+                installed: false
+            },
+            {
+                id: 7,
+                name: "Dynamic Lights",
+                version: "1.20.1",
+                description: "Динамическое освещение от предметов в руках",
+                author: "AtomicStryker",
+                size: "2.1 MB",
+                category: "visual",
+                downloads: 750000,
+                dependencies: [],
+                required: false,
+                installed: false
+            },
+            {
+                id: 8,
+                name: "Dreamwood Core",
+                version: "2.1.0",
+                description: "Основной мод сервера с уникальными функциями Dreamwood",
+                author: "Dreamwood Team",
+                size: "18.5 MB",
+                category: "gameplay",
+                downloads: 45000,
+                dependencies: ["Forge API"],
+                required: true,
+                installed: false
+            }
+        ];
+
+        let installedMods = JSON.parse(localStorage.getItem('installedMods')) || [2];
+        let currentFilter = 'all';
+        let searchQuery = '';
+        let isMaximized = false;
+        let originalSize = {
+            width: '95vw',
+            height: '95vh'
+        };
+
+        // Инициализация страницы модов
+        function initModsPage() {
+            renderMods();
+            updateInstalledCount();
+
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentFilter = this.getAttribute('data-filter');
+                    renderMods();
+                });
+            });
+
+            document.getElementById('mod-search').addEventListener('input', function(e) {
+                searchQuery = e.target.value.toLowerCase();
+                renderMods();
+            });
+        }
+
+        // Отрисовка модов
+        function renderMods() {
+            const container = document.getElementById('mods-container');
+            container.innerHTML = '';
+
+            const filteredMods = modsData.filter(mod => {
+                if (searchQuery && !mod.name.toLowerCase().includes(searchQuery) &&
+                    !mod.description.toLowerCase().includes(searchQuery) &&
+                    !mod.author.toLowerCase().includes(searchQuery)) {
+                    return false;
+                }
+
+                if (currentFilter === 'all') return true;
+                if (currentFilter === 'installed') return installedMods.includes(mod.id);
+                return mod.category === currentFilter;
+            });
+
+            if (filteredMods.length === 0) {
+                container.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #90a4ae;">
+                        <i class="fas fa-search" style="font-size: 36px; margin-bottom: 15px;"></i>
+                        <h3>Моды не найдены</h3>
+                        <p>Попробуйте изменить запрос или фильтр</p>
+                    </div>
+                `;
+                return;
+            }
+
+            filteredMods.forEach(mod => {
+                const isInstalled = installedMods.includes(mod.id);
+                const categoryClass = `category-${mod.category}`;
+                const categoryName = getCategoryName(mod.category);
+
+                const modCard = document.createElement('div');
+                modCard.className = 'mod-card';
+                modCard.innerHTML = `
+                    <div style="position: relative;">
+                        <div class="mod-category ${categoryClass}" style="position: absolute; top: 8px; right: 8px;">${categoryName}</div>
+                    </div>
+                    <div class="mod-header">
+                        <div class="mod-name">${mod.name}</div>
+                        <div class="mod-version">${mod.version}</div>
+                    </div>
+                    <div class="mod-body">
+                        <div class="mod-description">${mod.description}</div>
+                        <div class="mod-details">
+                            <span class="mod-author">Автор: ${mod.author}</span>
+                            <span class="mod-size">${mod.size}</span>
+                        </div>
+                        <div class="mod-actions">
+                            <button class="mod-btn install-btn" onclick="installMod(${mod.id})" ${isInstalled ? 'disabled style="opacity: 0.7;"' : ''}>
+                                <i class="fas ${isInstalled ? 'fa-check' : 'fa-download'}"></i>
+                                ${isInstalled ? 'Установлен' : 'Установить'}
+                            </button>
+                            <button class="mod-btn details-btn" onclick="showModDetails(${mod.id})">
+                                <i class="fas fa-info-circle"></i> Подробнее
+                            </button>
+                        </div>
+                        <div class="mod-status ${isInstalled ? 'status-installed' : ''}" id="mod-status-${mod.id}">
+                            ${isInstalled ? '<i class="fas fa-check-circle"></i> Установлен' : ''}
+                        </div>
+                    </div>
+                `;
+                container.appendChild(modCard);
+            });
+        }
+
+        // Установка мода
+        function installMod(modId) {
+            const mod = modsData.find(m => m.id === modId);
+            if (!mod) return;
+
+            const statusElement = document.getElementById(`mod-status-${modId}`);
+            const installBtn = document.querySelector(`.mod-card:nth-child(${modId}) .install-btn`);
+
+            statusElement.className = 'mod-status status-downloading';
+            statusElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Загрузка...';
+            statusElement.style.display = 'block';
+
+            setTimeout(() => {
+                if (!installedMods.includes(modId)) {
+                    installedMods.push(modId);
+                    localStorage.setItem('installedMods', JSON.stringify(installedMods));
+                }
+
+                statusElement.className = 'mod-status status-installed';
+                statusElement.innerHTML = '<i class="fas fa-check-circle"></i> Установлен';
+                statusElement.style.display = 'block';
+
+                installBtn.innerHTML = '<i class="fas fa-check"></i> Установлен';
+                installBtn.disabled = true;
+                installBtn.style.opacity = '0.7';
+
+                updateInstalledCount();
+
+                showNotification(`Мод "${mod.name}" успешно установлен!`);
+            }, 1500);
+        }
+
+        // Показать детали мода
+        function showModDetails(modId) {
+            const mod = modsData.find(m => m.id === modId);
+            if (!mod) return;
+
+            const modal = document.getElementById('mod-modal');
+            const modalName = document.getElementById('modal-mod-name');
+            const modalDetails = document.getElementById('modal-mod-details');
+
+            modalName.textContent = mod.name;
+
+            const dependenciesHtml = mod.dependencies.length > 0
+                ? `
+                    <div class="mod-dependencies">
+                        <h4 style="margin-bottom: 8px; color: #81d4fa;"><i class="fas fa-link"></i> Зависимости:</h4>
+                        ${mod.dependencies.map(dep => `
+                            <div class="dependency-item">
+                                <span>${dep}</span>
+                                <span class="mod-status status-installed" style="display: inline-block; padding: 2px 6px;">Установлен</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `
+                : '<p style="color: #4caf50;"><i class="fas fa-check-circle"></i> Не имеет зависимостей</p>';
+
+            modalDetails.innerHTML = `
+                <div style="margin-bottom: 15px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px;">
+                        <span><strong>Версия:</strong> ${mod.version}</span>
+                        <span><strong>Размер:</strong> ${mod.size}</span>
+                    </div>
+                    <div style="margin-bottom: 10px; font-size: 14px;">
+                        <strong>Автор:</strong> ${mod.author}
+                    </div>
+                    <div style="margin-bottom: 10px; font-size: 14px;">
+                        <strong>Категория:</strong> <span class="mod-category category-${mod.category}" style="display: inline-block; margin-left: 8px;">${getCategoryName(mod.category)}</span>
+                    </div>
+                    <div style="margin-bottom: 10px; font-size: 14px;">
+                        <strong>Загрузок:</strong> ${mod.downloads.toLocaleString()}
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <h4 style="color: #81d4fa; margin-bottom: 8px;">Описание:</h4>
+                    <p style="font-size: 14px;">${mod.description}</p>
+                </div>
+
+                ${dependenciesHtml}
+
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(100, 181, 246, 0.3); font-size: 14px;">
+                    <p><strong>Статус:</strong> ${mod.required ? '<span style="color: #ff9800;">Обязательный для сервера</span>' : '<span style="color: #4caf50;">Опциональный</span>'}</p>
+                    <p><strong>Установлен:</strong> ${installedMods.includes(modId) ? '<span style="color: #4caf50;">Да</span>' : '<span style="color: #ff9800;">Нет</span>'}</p>
+                </div>
+
+                <div style="margin-top: 20px; display: flex; gap: 10px;">
+                    <button class="mod-btn install-btn" onclick="installMod(${mod.id}); closeModal();" ${installedMods.includes(modId) ? 'disabled style="opacity: 0.7;"' : ''}>
+                        <i class="fas ${installedMods.includes(modId) ? 'fa-check' : 'fa-download'}"></i>
+                        ${installedMods.includes(modId) ? 'Установлен' : 'Установить сейчас'}
+                    </button>
+                    <button class="mod-btn details-btn" onclick="closeModal()">
+                        <i class="fas fa-times"></i> Закрыть
+                    </button>
+                </div>
+            `;
+
+            modal.style.display = 'flex';
+        }
+
+        // Закрыть модальное окно
+        function closeModal() {
+            document.getElementById('mod-modal').style.display = 'none';
+        }
+
+        // Обновить счетчик установленных модов
+        function updateInstalledCount() {
+            const count = installedMods.length;
+            document.getElementById('installed-mods-count').textContent = count;
+        }
+
+        // Получить название категории
+        function getCategoryName(category) {
+            const categories = {
+                'performance': 'Оптимизация',
+                'visual': 'Графика',
+                'utility': 'Утилиты',
+                'gameplay': 'Геймплей'
+            };
+            return categories[category] || category;
+        }
+
+        // Показать уведомление
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 40px;
+                right: 20px;
+                background: rgba(30, 40, 55, 0.95);
+                color: #e0e0e0;
+                padding: 12px 16px;
+                border-radius: 8px;
+                border-left: 3px solid #4fc3f7;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+                z-index: 1000;
+                animation: slideIn 0.3s ease;
+                font-size: 14px;
+            `;
+
+            notification.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-check-circle" style="color: #4fc3f7;"></i>
+                    <div>${message}</div>
+                </div>
+            `;
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+
+            if (!document.querySelector('#notification-styles')) {
+                const style = document.createElement('style');
+                style.id = 'notification-styles';
+                style.textContent = `
+                    @keyframes slideIn {
+                        from { transform: translateX(100%); opacity: 0; }
+                        to { transform: translateX(0); opacity: 1; }
+                    }
+                    @keyframes slideOut {
+                        from { transform: translateX(0); opacity: 1; }
+                        to { transform: translateX(100%); opacity: 0; }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
+
+        // Навигация по вкладкам
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+                this.classList.add('active');
+                const tabId = this.getAttribute('data-tab');
+                document.getElementById(tabId).classList.add('active');
+
+                if (tabId === 'mods') {
+                    initModsPage();
+                }
+            });
+        });
+
+        // Кнопки окна Windows
+        document.getElementById('minimize-btn').addEventListener('click', function() {
+            const container = document.querySelector('.launcher-container');
+            container.style.transform = 'scale(0.01)';
+            container.style.opacity = '0';
+            setTimeout(() => {
+                container.style.display = 'none';
+                showNotification('Лаунчер свернут в трей');
+                setTimeout(() => {
+                    container.style.display = 'flex';
+                    container.style.transform = 'scale(1)';
+                    container.style.opacity = '1';
+                }, 3000);
+            }, 300);
+        });
+       function max() {
+    const container = document.querySelector('.launcher-container');
+    const btnIcon = document.getElementById('maximize-btn').querySelector('i'); // Исправлено здесь
+
+    if (!isMaximized) {
+        originalSize = {
+            width: container.style.width || '95vw',
+            height: container.style.height || '95vh'
+        };
+        container.style.width = '100vw';
+        container.style.height = '100vh';
+        container.style.maxWidth = '100vw';
+        container.style.borderRadius = '0';
+        btnIcon.className = 'fas fa-clone';
+        isMaximized = true;
+    } else {
+        container.style.width = originalSize.width;
+        container.style.height = originalSize.height;
+        container.style.maxWidth = '95vh';
+        container.style.borderRadius = '0 0 12px 12px';
+        btnIcon.className = 'fas fa-square';
+        isMaximized = false;
+    }
+}
+        document.getElementById('maximize-btn').addEventListener('click', function() {
+
+        });
+
+        document.getElementById('close-btn').addEventListener('click', function() {
+            const container = document.querySelector('.launcher-container');
+            container.style.opacity = '0';
+            container.style.transform = 'scale(0.8)';
+
+            setTimeout(() => {
+                document.body.innerHTML = `
+                    <div style="display: flex; justify-content: center; align-items: center; height: 100vh; background: linear-gradient(135deg, #0a1520 0%, #1a2a3a 100%); color: white; font-family: 'Segoe UI';">
+                        <div style="text-align: center;">
+                            <h1 style="margin-bottom: 20px; color: #64b5f6;"><i class="fas fa-tree"></i> Dreamwood Launcher</h1>
+                            <p style="margin-bottom: 30px;">Лаунчер успешно закрыт</p>
+                            <button onclick="location.reload()" style="background: #2c7bb6; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
+                                <i class="fas fa-redo"></i> Перезапустить лаунчер
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }, 300);
+        });
+
+        // Симуляция запуска игры
+        document.getElementById('launch-game').addEventListener('click', function() {
+            const launchBtn = this;
+            const progressContainer = document.getElementById('progress-container');
+            const progressFill = document.getElementById('progress-fill');
+            const progressText = document.getElementById('progress-text');
+
+            launchBtn.disabled = true;
+            launchBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Запуск...';
+            progressContainer.style.display = 'block';
+
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress > 100) progress = 100;
+
+                progressFill.style.width = progress + '%';
+
+                if (progress < 30) {
+                    progressText.textContent = 'Проверка обновлений...';
+                } else if (progress < 60) {
+                    progressText.textContent = 'Загрузка ресурсов...';
+                } else if (progress < 90) {
+                    progressText.textContent = 'Запуск Minecraft...';
+                } else {
+                    progressText.textContent = 'Готово! Запускается игра...';
+                }
+
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        alert('Minecraft запущен! Добавьте сервер dreamwood.house в список серверов.');
+                        launchBtn.disabled = false;
+                        launchBtn.innerHTML = '<i class="fas fa-rocket"></i> Запустить игру';
+                        progressContainer.style.display = 'none';
+                        progressFill.style.width = '0%';
+                    }, 1000);
+                }
+            }, 300);
+        });
+
+        // Функция изменения пути к игре
+        function changeGamePath() {
+            const newPath = prompt('Введите новый путь к папке Minecraft:');
+            if (newPath) {
+                document.getElementById('game-path').value = newPath;
+            }
+        }
+
+        // Обновление онлайн-счетчика
+        function updateOnlineCount() {
+            const baseOnline = 128;
+            const randomChange = Math.floor(Math.random() * 21) - 10;
+            const newOnline = Math.max(50, baseOnline + randomChange);
+
+            document.getElementById('online-count').textContent = newOnline;
+            document.getElementById('online-now').textContent = newOnline;
+        }
+
+        setInterval(updateOnlineCount, 30000);
+
+        function updateStats() {
+            const totalPlayers = document.getElementById('total-players');
+            let currentTotal = parseInt(totalPlayers.textContent.replace(',', ''));
+            currentTotal += Math.floor(Math.random() * 10);
+            totalPlayers.textContent = currentTotal.toLocaleString();
+        }
+
+        setInterval(updateStats, 60000);
+
+        // Закрытие модального окна при клике вне его
+        document.getElementById('mod-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Полноэкранный режим
+        const fullscreenToggle = document.getElementById('fullscreen-toggle');
+        fullscreenToggle.addEventListener('click', toggleFullscreen);
+
+        function toggleFullscreen() {
+            const container = document.querySelector('.launcher-container');
+
+            if (!document.fullscreenElement) {
+                if (container.requestFullscreen) {
+                    container.requestFullscreen();
+                } else if (container.webkitRequestFullscreen) {
+                    container.webkitRequestFullscreen();
+                } else if (container.msRequestFullscreen) {
+                    container.msRequestFullscreen();
+                }
+                fullscreenToggle.innerHTML = '<i class="fas fa-compress"></i>';
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+                fullscreenToggle.innerHTML = '<i class="fas fa-expand"></i>';
+            }
+        }
+
+        // Отслеживание изменения полноэкранного режима
+        document.addEventListener('fullscreenchange', updateFullscreenButton);
+        document.addEventListener('webkitfullscreenchange', updateFullscreenButton);
+        document.addEventListener('msfullscreenchange', updateFullscreenButton);
+
+        function updateFullscreenButton() {
+            const container = document.querySelector('.launcher-container');
+            if (document.fullscreenElement === container ||
+                document.webkitFullscreenElement === container ||
+                document.msFullscreenElement === container) {
+                fullscreenToggle.innerHTML = '<i class="fas fa-compress"></i>';
+            } else {
+                fullscreenToggle.innerHTML = '<i class="fas fa-expand"></i>';
+            }
+        }
+
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', function() {
+        max()
+            updateInstalledCount();
+            if (document.getElementById('mods').classList.contains('active')) {
+                initModsPage();
+            }
+        });
+    </script>
+</body>
+</html>
+        
+        
+        
