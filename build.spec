@@ -1,7 +1,5 @@
 # build.spec
-# Запуск: pyinstaller build.spec
 
-# -*- mode: python ; coding: utf-8 -*-
 
 block_cipher = None
 
@@ -10,13 +8,11 @@ a = Analysis(
     pathex=[],
     binaries=[],
     datas=[
-        ('logo.ico', '.'),           # иконка приложения
-        ('web', 'web'),               # папка с сайтом
-        ('mods.py', '.'),             # модуль модов
-        ('launcher.py', '.'),         # модуль лаунчера
+        ('logo.ico', '.'),                     
+        ('mods.py', '.'),             
+        ('launcher.py', '.'),         
     ],
     hiddenimports=[
-        # стандартные библиотеки
         'http.server',
         'socketserver',
         'os',
@@ -28,7 +24,7 @@ a = Analysis(
         'uuid',
         'subprocess',
 
-        # основные библиотеки
+       
         'webview',
         'webview.platforms.winforms',
         'webview.platforms.cef',
@@ -40,12 +36,12 @@ a = Analysis(
         'minecraft_launcher_lib.exception',
         'requests',
 
-        # для nbt
+  
         'pynbt',
         'pynbt.tag',
         'pynbt.file',
 
-        # зависимости requests
+       
         'urllib3',
         'urllib3.connection',
         'charset_normalizer',
@@ -74,7 +70,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='DreamwoodLauncher3',  # название программы
+    name='DreamwoodLauncher', 
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -86,5 +82,6 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon='logo.ico',  # иконка exe файла
+    icon='logo.ico',  
+
 )
